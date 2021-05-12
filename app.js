@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-const bodyParser = require('body-parser');
 const port = 3000;
+const usersRouter = express.Router();
 
 const users = ["John","Mark"];//"John","Mark"
 
@@ -15,16 +15,18 @@ const logMethod = (req, res, next)=>{
     next();
 }
 
-app.use(logUsers);
-// app.use(logMethod);
+
 
 //parse application/json
 app.use(express.json());
+app.use(logUsers);
+// app.use(logMethod);
 
 
 
-app.get("/users",logMethod,(req, res, next) => {
-    // console.log();
+
+usersRouter.get("/",logMethod,(req, res, next) => {
+    console.log("...........usersRouter.get");
     if(users.length <= 0){
         const err = new Error("Internal server error");
         err.status = 500;
@@ -32,6 +34,10 @@ app.get("/users",logMethod,(req, res, next) => {
     }
     res.json(users);
 })
+
+
+app.use("/users", usersRouter);
+
 
 app.use((err, req, res, next) =>{
     res.status(err.status);
@@ -42,6 +48,7 @@ app.use((err, req, res, next) =>{
         },
     });
 });
+
 
 app.listen(port,()=>{
     console.log(`Example app listening at http://localhost:${port}`);
