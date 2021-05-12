@@ -5,28 +5,24 @@ const port = 3000;
 const usersRouter = express.Router();
 const productsRouter = express.Router();
 
-const users = ["John","Mark"];
-const products = ["keyboard","mouse"];
+const users = ["John", "Mark"];
+const products = ["keyboard", "mouse"];
 
 
-const logUsers = (req, res, next)=>{
+const logUsers = (req, res, next) => {
     console.log(users);
     next();
 }
 
-// const logProducts = (req, res, next)=>{
-//     console.log(products);
-//     next();
-// }
-
-
-
-const logMethod = (req, res, next)=>{
-    console.log("......",req.method);
+const logProducts = (req, res, next) => {
+    console.log(products);
     next();
 }
 
-
+const logMethod = (req, res, next) => {
+    console.log("......", req.method);
+    next();
+}
 
 //parse application/json
 app.use(express.json());
@@ -34,14 +30,14 @@ app.use(morgan("dev"));
 // app.use(logUsers);
 // app.use(logMethod);
 app.use("/users", usersRouter);
-app.use("/products",productsRouter);
+app.use("/products", productsRouter);
+// productsRouter.use(logMethod)
+productsRouter.use(logProducts);
 
 
-
-
-usersRouter.get("/",(req, res, next) => {
+usersRouter.get("/", (req, res, next) => {
     // console.log("...........usersRouter.get");
-    if(users.length <= 0){
+    if (users.length <= 0) {
         const err = new Error("no users");
         err.status = 404;
         next(err);
@@ -49,22 +45,16 @@ usersRouter.get("/",(req, res, next) => {
     res.json(users);
 })
 
-usersRouter.post('/create',(req,res,next) =>{
+usersRouter.post('/create', (req, res, next) => {
     const newUser = req.body.user;
     users.push(newUser)
-    console.log("user.......",newUser);
-    console.log(".........users.......",users);
+    console.log("user.......", newUser);
+    console.log(".........users.......", users);
     res.json(users)
-    // res.send("done..........")
-
 })
 
-
-productsRouter.use(logMethod)
-
-productsRouter.get("/",(req, res, next) => {
-    
-    if(users.length <= 0){
+productsRouter.get("/", (req, res, next) => {
+    if (users.length <= 0) {
         const err = new Error("no products");
         err.status = 404;
         next(err);
@@ -73,14 +63,14 @@ productsRouter.get("/",(req, res, next) => {
 })
 
 
-productsRouter.put('/update/:name',(req,res,next)=>{
+productsRouter.put('/update/:name', (req, res, next) => {
     let index;
-    const product =req.params.name;
-    const found = products.find((ele,i)=>{
+    const product = req.params.name;
+    const found = products.find((ele, i) => {
         index = i;
         return ele === product;
     })
-    if(found){
+    if (found) {
         products[index] = req.body.product;
         res.status(200);
         res.json(products)
@@ -91,24 +81,26 @@ productsRouter.put('/update/:name',(req,res,next)=>{
     }
 })
 
-productsRouter.get('/',morgan,(req,res,next)=>{
-    res.json(products);
+productsRouter.use('*',  (req, res, next) => {
+    const err= new Error("NOT FOUND");
+    err.status = 404;
+    next(err);
 })
 
 
 
-app.use((err, req, res, next) =>{
+app.use((err, req, res, next) => {
     res.status(err.status);
     res.json({
-        error:{
-            status:err.status,
+        error: {
+            status: err.status,
             message: err.message,
         },
     });
 });
 
 
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 })
 
