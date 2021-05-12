@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const usersRouter = express.Router();
+const productsRouter = express.Router();
 
 const users = ["John","Mark"];//"John","Mark"
 
@@ -19,7 +20,7 @@ const logMethod = (req, res, next)=>{
 
 //parse application/json
 app.use(express.json());
-app.use(logUsers);
+// app.use(logUsers);
 // app.use(logMethod);
 
 
@@ -28,16 +29,24 @@ app.use(logUsers);
 usersRouter.get("/",logMethod,(req, res, next) => {
     console.log("...........usersRouter.get");
     if(users.length <= 0){
-        const err = new Error("Internal server error");
-        err.status = 500;
+        const err = new Error("no users");
+        err.status = 404;
         next(err);
     }
     res.json(users);
 })
 
+usersRouter.post('/create',(req,res,next) =>{
+    const newUser = req.body.user;
+    users.push(newUser)
+    console.log("user.......",newUser);
+    console.log(".........users.......",users);
+    res.json(users)
+    // res.send("done..........")
+
+})
 
 app.use("/users", usersRouter);
-
 
 app.use((err, req, res, next) =>{
     res.status(err.status);
