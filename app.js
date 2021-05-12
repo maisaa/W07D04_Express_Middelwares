@@ -9,7 +9,9 @@ const logUsers = (req, res, next)=>{
     next();
 }
 
-app.get("/users",logUsers,(req, res, next) => {
+app.use(logUsers);
+
+app.get("/users",(req, res, next) => {
     res.json(users);
 })
 
