@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 const port = 3000;
 const usersRouter = express.Router();
@@ -12,10 +13,11 @@ const logUsers = (req, res, next)=>{
     console.log(users);
     next();
 }
-const logProducts = (req, res, next)=>{
-    console.log(products);
-    next();
-}
+
+// const logProducts = (req, res, next)=>{
+//     console.log(products);
+//     next();
+// }
 
 
 
@@ -28,6 +30,7 @@ const logMethod = (req, res, next)=>{
 
 //parse application/json
 app.use(express.json());
+app.use(morgan("dev"));
 // app.use(logUsers);
 // app.use(logMethod);
 app.use("/users", usersRouter);
@@ -35,8 +38,9 @@ app.use("/products",productsRouter);
 
 
 
-usersRouter.get("/",logMethod,(req, res, next) => {
-    console.log("...........usersRouter.get");
+
+usersRouter.get("/",(req, res, next) => {
+    // console.log("...........usersRouter.get");
     if(users.length <= 0){
         const err = new Error("no users");
         err.status = 404;
@@ -55,7 +59,10 @@ usersRouter.post('/create',(req,res,next) =>{
 
 })
 
-productsRouter.get("/",logMethod,(req, res, next) => {
+
+productsRouter.use(logMethod)
+
+productsRouter.get("/",(req, res, next) => {
     
     if(users.length <= 0){
         const err = new Error("no products");
@@ -84,9 +91,9 @@ productsRouter.put('/update/:name',(req,res,next)=>{
     }
 })
 
-// productsRouter.get('*',logProducts,(req,res,next)=>{
-//     res.json(products);
-// })
+productsRouter.get('/',morgan,(req,res,next)=>{
+    res.json(products);
+})
 
 
 
