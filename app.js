@@ -4,12 +4,20 @@ const port = 3000;
 const usersRouter = express.Router();
 const productsRouter = express.Router();
 
-const users = ["John","Mark"];//"John","Mark"
+const users = ["John","Mark"];
+const products = ["keyboard","mouse"];
+
 
 const logUsers = (req, res, next)=>{
     console.log(users);
     next();
 }
+const logProducts = (req, res, next)=>{
+    console.log(products);
+    next();
+}
+
+
 
 const logMethod = (req, res, next)=>{
     console.log("......",req.method);
@@ -22,7 +30,8 @@ const logMethod = (req, res, next)=>{
 app.use(express.json());
 // app.use(logUsers);
 // app.use(logMethod);
-
+app.use("/users", usersRouter);
+app.use("/products",productsRouter);
 
 
 
@@ -46,7 +55,40 @@ usersRouter.post('/create',(req,res,next) =>{
 
 })
 
-app.use("/users", usersRouter);
+productsRouter.get("/",logMethod,(req, res, next) => {
+    
+    if(users.length <= 0){
+        const err = new Error("no products");
+        err.status = 404;
+        next(err);
+    }
+    res.json(products);
+})
+
+
+productsRouter.put('/update/:name',(req,res,next)=>{
+    let index;
+    const product =req.params.name;
+    const found = products.find((ele,i)=>{
+        index = i;
+        return ele === product;
+    })
+    if(found){
+        products[index] = req.body.product;
+        res.status(200);
+        res.json(products)
+    } else {
+        const err = new Error("no product");
+        err.status = 404;
+        next(err);
+    }
+})
+
+// productsRouter.get('*',logProducts,(req,res,next)=>{
+//     res.json(products);
+// })
+
+
 
 app.use((err, req, res, next) =>{
     res.status(err.status);
